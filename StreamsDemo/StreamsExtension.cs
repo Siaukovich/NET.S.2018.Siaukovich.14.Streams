@@ -68,7 +68,28 @@ namespace StreamsDemo
 
         public static int ByBlockCopy(string sourcePath, string destinationPath)
         {
-            throw new NotImplementedException();
+            InputValidation(sourcePath, destinationPath);
+
+            const int BUFFER_SIZE = 10000;
+            int byteCount = 0;
+            using (FileStream sourceFile = File.OpenRead(sourcePath),
+                              destinationFile = File.OpenWrite(destinationPath))
+            {
+                var buffer = new byte[BUFFER_SIZE];
+                while (true)
+                {
+                    int chunckLength = sourceFile.Read(buffer, 0, BUFFER_SIZE);
+
+                    if (chunckLength == 0)
+                    {
+                        return byteCount;
+                    }
+
+                    destinationFile.Write(buffer, 0, chunckLength);
+
+                    byteCount += chunckLength;
+                }
+            }
         }
 
         #endregion
