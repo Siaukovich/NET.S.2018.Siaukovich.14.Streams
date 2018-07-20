@@ -21,6 +21,24 @@ namespace StreamsDemo
 
         public static int ByByteCopy(string sourcePath, string destinationPath)
         {
+            InputValidation(sourcePath, destinationPath);
+
+            using (FileStream sourceFile = File.OpenRead(sourcePath), 
+                         destinationFile = File.OpenWrite(destinationPath))
+            {
+                int byteCount = 0;
+                while (true)
+                {
+                    int b = sourceFile.ReadByte();
+                    if (b == -1)
+                    {
+                        return byteCount;
+                    }
+
+                    destinationFile.WriteByte((byte)b);
+                    byteCount++;
+                }
+            }
         }
 
         #endregion
