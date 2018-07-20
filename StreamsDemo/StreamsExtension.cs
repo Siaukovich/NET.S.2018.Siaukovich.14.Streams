@@ -117,7 +117,27 @@ namespace StreamsDemo
 
         public static int ByLineCopy(string sourcePath, string destinationPath)
         {
-            throw new NotImplementedException();
+            InputValidation(sourcePath, destinationPath);
+
+            using (FileStream sourceFile = File.OpenRead(sourcePath), destinationFile = File.OpenWrite(destinationPath))
+            {
+                using (var sourceReader = new StreamReader(sourceFile))
+                using (var destinationWriter = new StreamWriter(destinationFile))
+                {
+                    int lineCount = 0;
+                    while (true)
+                    {
+                        string line = sourceReader.ReadLine();
+                        if (line == null)
+                        {
+                            return lineCount;
+                        }
+
+                        destinationWriter.WriteLine(line);
+                        lineCount++;
+                    }
+                }
+            }
         }
 
         #endregion
@@ -126,7 +146,31 @@ namespace StreamsDemo
 
         public static bool IsContentEquals(string sourcePath, string destinationPath)
         {
-            throw new NotImplementedException();
+            InputValidation(sourcePath, destinationPath);
+
+            using (FileStream sourceFile = File.OpenRead(sourcePath), destinationFile = File.OpenRead(destinationPath))
+            {
+                using (var sourceReader = new StreamReader(sourceFile))
+                using (var destinationReader = new StreamReader(destinationFile))
+                {
+                    while (true)
+                    {
+                        string sourceLine = sourceReader.ReadLine();
+                        string destinationLine = destinationReader.ReadLine();
+
+                        if (sourceLine != destinationLine)
+                        {
+                            return false;
+                        }
+
+                        // Both lines are null.
+                        if (sourceLine == null)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
         }
 
         #endregion
