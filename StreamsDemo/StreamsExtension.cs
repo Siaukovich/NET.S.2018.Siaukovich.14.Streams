@@ -5,6 +5,7 @@ using System.Text;
 
 namespace StreamsDemo
 {
+    using System.Collections.Generic;
     using System.Runtime.InteropServices;
 
     // C# 6.0 in a Nutshell. Joseph Albahari, Ben Albahari. O'Reilly Media. 2015
@@ -47,19 +48,36 @@ namespace StreamsDemo
 
         public static int InMemoryByByteCopy(string sourcePath, string destinationPath)
         {
+            InputValidation(sourcePath, destinationPath);
+            
             // TODO: step 1. Use StreamReader to read entire file in string
-
+            string fileText;
+            using (var sr = new StreamReader(sourcePath))
+            {
+                fileText = sr.ReadToEnd();
+            }
+            
             // TODO: step 2. Create byte array on base string content - use  System.Text.Encoding class
-
+            byte[] bytes = Encoding.UTF8.GetBytes(fileText);
+            var newBytes = new byte[bytes.Length];
+            
             // TODO: step 3. Use MemoryStream instance to read from byte array (from step 2)
-
-            // TODO: step 4. Use MemoryStream instance (from step 3) to write it content in new byte array
+            using (var ms = new MemoryStream(bytes))
+            {
+                // TODO: step 4. Use MemoryStream instance (from step 3) to write it content in new byte array
+                ms.Read(newBytes, 0, bytes.Length);
+            }
 
             // TODO: step 5. Use Encoding class instance (from step 2) to create char array on byte array content
+            char[] chars = Encoding.UTF8.GetChars(newBytes);
 
             // TODO: step 6. Use StreamWriter here to write char array content in new file
+            using (var sw = new StreamWriter(destinationPath))
+            {
+                sw.Write(chars);
+            }
 
-            throw new NotImplementedException();
+            return bytes.Length;
         }
 
         #endregion
@@ -119,7 +137,8 @@ namespace StreamsDemo
         {
             InputValidation(sourcePath, destinationPath);
 
-            using (FileStream sourceFile = File.OpenRead(sourcePath), destinationFile = File.OpenWrite(destinationPath))
+            using (FileStream sourceFile = File.OpenRead(sourcePath), 
+                         destinationFile = File.OpenWrite(destinationPath))
             {
                 using (var sourceReader = new StreamReader(sourceFile))
                 using (var destinationWriter = new StreamWriter(destinationFile))
@@ -133,9 +152,22 @@ namespace StreamsDemo
                             return lineCount;
                         }
 
-                        destinationWriter.WriteLine(line);
+                        WriteToFile(sourceReader, destinationWriter, line);
+
                         lineCount++;
                     }
+                }
+            }
+
+            void WriteToFile(StreamReader sourceReader, StreamWriter destinationWriter, string newLine)
+            {
+                if (!sourceReader.EndOfStream)
+                {
+                    destinationWriter.WriteLine(newLine);
+                }
+                else
+                {
+                    destinationWriter.Write(newLine);
                 }
             }
         }
